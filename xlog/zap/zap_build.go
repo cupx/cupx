@@ -18,7 +18,7 @@ import (
 	"os"
 
 	"github.com/cupx/cupx/xlog/xlogcore"
-	
+
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

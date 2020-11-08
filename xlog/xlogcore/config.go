@@ -58,9 +58,9 @@ const (
 // Config configures a Logger when creating.
 type Config struct {
 	// Driver supports zap. It defaults to zap. 
-	Driver   string `yaml:"driver"`
+	Driver string `yaml:"driver"`
 	// Level from -1 to 4
-	Level    int8   `yaml:"level"`
+	Level int8 `yaml:"level"`
 	// Encoding sets the logger's encoding. Valid values are "json" and "console"
 	Encoding string `yaml:"encoding"`
 	// FileName is the name of the log file. if the FileName is empty. 
