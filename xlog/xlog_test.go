@@ -15,8 +15,9 @@
 package xlog
 
 import (
-	"github.com/cupx/cupx/xlog/xlogcore"
 	"testing"
+
+	"github.com/cupx/cupx/xlog/xlogcore"
 )
 
 func TestNewFastXLog(t *testing.T) {
@@ -96,9 +97,9 @@ func TestNewXLogDft(t *testing.T) {
 	})
 	Info("hi", "hi", 2)
 	SetConfig(xlogcore.Config{
-		Level:    xlogcore.DebugLevel,
-		Encoding: "json",
-		FileName: "/tmp/xlog/xlog.log",
+		Level:           xlogcore.DebugLevel,
+		Encoding:        "json",
+		FileName:        "/tmp/xlog/xlog.log",
 		RotationMaxSize: 1,
 	})
 
@@ -107,11 +108,11 @@ func TestNewXLogDft(t *testing.T) {
 	}
 
 	SetConfig(xlogcore.Config{
-		Level:    xlogcore.DebugLevel,
-		Encoding: "json",
-		FileName: "/tmp/xlog/xlog.log",
+		Level:           xlogcore.DebugLevel,
+		Encoding:        "json",
+		FileName:        "/tmp/xlog/xlog.log",
 		RotationMaxSize: 1,
-		RetainCompress: true,
+		RetainCompress:  true,
 		RetainLocalTime: true,
 	})
 
