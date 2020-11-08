@@ -13,3 +13,13 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+
+# project
+*.tmp
+*.test.yml
+*.test.yaml
+
+# other
+.DS_Store
+.idea
