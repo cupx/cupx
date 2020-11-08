@@ -1,0 +1,22 @@
+acme_staging_acct:
+    contact:
+        - xx@xx.com
+    tos_agreed: true
+    acct_url: https://acme-staging-v02.api.letsencrypt.org/acme/acct/xxxx
+    pem_privatekey: |
+        -----BEGIN EC PRIVATE KEY-----
+        xxxx 
+        -----END EC PRIVATE KEY-----
+acme_acct:
+    contact:
+        - xx@xx.com
+    tos_agreed: true
+    acct_url: https://acme-v02.api.letsencrypt.org/acme/acct/xxxxxx
+    pem_privatekey: |
+        -----BEGIN EC PRIVATE KEY-----
+        xxx 
+        -----END EC PRIVATE KEY-----
+dns:
+    type: alidns
+    ak: "xxxx"
+    sk: "xxxxxxx"

@@ -1,0 +1,4 @@
+dns:
+    type: alidns
+    ak: "xxxxxxxx"
+    sk: "xxxxxxx"
