@@ -34,6 +34,12 @@ type FastXLog interface {
 	// With adds a variadic number of fields to the logging context.	
 	With(kvs ...KeyVal) FastXLog
 
+	// ToCtx adds the FastXLog, with a variadic number of fields, to ctx and
+	// returns the resulting context.Context.
+	ToCtx(ctx context.Context, kvs ...KeyVal) context.Context
+	// FromCtx gets the FastXLog from the ctx.
+	FromCtx(ctx context.Context) FastXLog
+
 	// Debug construct and log a Debug message.
 	Debug(msg string)
 	// Info construct and log a Info message.
@@ -64,11 +70,12 @@ type XLog interface {
 
 	// With adds a variadic number of fields to the logging context.
 	With(kvs ...interface{}) XLog
-	// Withc adds a variadic number of fields to the context.Context and
-	// returns the resulting ctx.
-	Withc(ctx context.Context, kvs ...interface{}) context.Context
-	// Ctx adds a variadic number of fields to the logging context from the ctx.
-	Ctx(ctx context.Context) XLog
+
+	// ToCtx adds the XLog, with a variadic number of fields, to ctx and
+	// returns the resulting context.Context.
+	ToCtx(ctx context.Context, kvs ...interface{}) context.Context
+	// FromCtx gets the XLog from the ctx.
+	FromCtx(ctx context.Context) XLog
 
 	// Debug construct and log a Debug message.
 	Debug(args ...interface{})

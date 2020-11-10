@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/cupx/cupx/xlog/xlogcore"
-	
+
 	"go.uber.org/zap"
 )
 
@@ -65,14 +65,14 @@ func (log *XLogger) WithOptions(opts ...xlogcore.Option) xlogcore.XLog {
 		zapOpts = append(zapOpts, zap.AddCallerSkip(*o.AddCallerSkip))
 	}
 
-	l.logger = log.logger.Desugar().WithOptions(zapOpts...).Sugar()
+	l.logger = l.logger.Desugar().WithOptions(zapOpts...).Sugar()
 	return l
 }
 
 // AddCallerSkip increases the number of callers skipped by caller annotation.
 func (log *XLogger) AddCallerSkip(n int) xlogcore.XLog {
 	l := log.clone()
-	l.logger = log.logger.Desugar().WithOptions(zap.AddCaller(), zap.AddCallerSkip(n)).Sugar()
+	l.logger = l.logger.Desugar().WithOptions(zap.AddCaller(), zap.AddCallerSkip(n)).Sugar()
 	return l
 }
 
@@ -83,41 +83,35 @@ func (log *XLogger) With(kvs ...interface{}) xlogcore.XLog {
 		return log
 	}
 	l := log.clone()
-	l.logger = log.logger.With(kvs...)
+	l.logger = l.logger.With(kvs...)
 	return l
 }
 
-// Withc adds a variadic number of fields to the context.Context and
-// returns the resulting ctx.
-func (log *XLogger) Withc(ctx context.Context, kvs ...interface{}) context.Context {
-
+// ToCtx adds the XLog, with a variadic number of fields, to ctx and
+// returns the resulting context.Context.
+func (log *XLogger) ToCtx(ctx context.Context, kvs ...interface{}) context.Context {
 	if ctx == nil {
 		ctx = context.TODO()
 	}
 
-	v := ctx.Value("cupx_xlog_kv")
-	switch v.(type) {
-	case []interface{}:
-		v = append(v.([]interface{}), kvs...)
-	default:
-		v = kvs
-	}
-	return context.WithValue(ctx, "cupx_xlog_kv", v)
+	l := log.clone()
+	l.logger = l.logger.With(kvs...)
+	return context.WithValue(ctx, ctxZapXLogKey, l)
 }
 
-// Ctx adds a variadic number of fields to the logging context from the ctx.
-func (log *XLogger) Ctx(ctx context.Context) xlogcore.XLog {
+// FromCtx gets the XLog from the ctx.
+func (log *XLogger) FromCtx(ctx context.Context) xlogcore.XLog {
 	if ctx == nil {
 		return log
 	}
 
-	v := ctx.Value("cupx_xlog_kv")
-
-	if args, ok := v.([]interface{}); ok {
-		l := log.clone()
-		l.logger = log.logger.With(args...)
-		return l
+	if ctxL, ok := ctx.Value(ctxZapXLogKey).(*XLogger); ok {
+		return ctxL
 	}
+	if ctxFl, ok := ctx.Value(ctxZapFastXLogKey).(*FastXLogger); ok {
+		return ctxFl.XLog()
+	}
+
 	return log
 }
 
@@ -190,7 +184,7 @@ func (log *XLogger) genMsg(args ...interface{}) string {
 	msg := ""
 	for i, arg := range args {
 		if i == 0 {
-			msg += fmt.Sprintf("%+v", arg)
+			msg += fmt.Sprintf("%v", arg)
 		} else {
 			msg += fmt.Sprintf(" %+v", arg)
 		}

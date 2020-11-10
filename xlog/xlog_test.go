@@ -34,6 +34,8 @@ func TestNewFastXLog(t *testing.T) {
 	logger.With(xlogcore.Int64("k2", 13)).Warn("hi14")
 	logger.XLog().With("k8", "v8").Info("XLog")
 	logger.XLog().Info("XLog", "Info")
+	ctx := logger.With(xlogcore.String("k10", "v10")).ToCtx(nil, xlogcore.Int64("k9", 12))
+	logger.FromCtx(ctx).Debug("hi from ctx")
 
 }
 
@@ -54,9 +56,9 @@ func TestNewXLog(t *testing.T) {
 	logger.Debugf("%s%d", "hi", 12)
 	logger.With("k8", "v8").Info("XLog", "k9", "v9")
 	logger.Info("XLog", "k10", "v10")
-	ctx := logger.Withc(nil, "k11", "v11")
-	ctx2 := logger.Withc(ctx, "k14", "v14")
-	logger.With("k12", "v12").Ctx(ctx2).With("k13", "v13").Info("hi")
+	ctx := logger.ToCtx(nil, "k11", "v11")
+	ctx2 := logger.ToCtx(ctx, "k14", "v14")
+	logger.With("k12", "v12").FromCtx(ctx2).With("k13", "v13").Info("hi")
 }
 
 func TestNewXLogDft(t *testing.T) {
@@ -83,10 +85,14 @@ func TestNewXLogDft(t *testing.T) {
 	WithOptions(xlogcore.OptionWithAddCallerSkip(0)).Info("kSkip")
 	AddCallerSkip(0).Info("addTest")
 
-	ctx := Withc(nil, "k15", "v15")
-	ctx2 := Withc(ctx, "k14", "v14")
-	With("k12", "v12").Ctx(ctx2).With("k13", "v13").Info("hi")
-	Ctx(ctx2).With("k16", "v16").Info("hi")
+	ctx := ToCtx(nil, "k15", "v15")
+	ctx2 := FromCtx(ctx).ToCtx(ctx, "k14", "v14")
+	FromCtx(ctx2).With("k13", "v13").Info("hi")
+	FromCtx(ctx2).With("k16", "v16").Fast().Info("hi")
+	Fast().FromCtx(ctx2).Info("hi")
+	ctx3 := ToCtx(nil)
+	With("k17","v17").FromCtx(ctx3).With("k18","v18").Info("hi")
+	
 	//Panic("msg")
 	//Fatal("msg")
 

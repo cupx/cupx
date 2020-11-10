@@ -24,6 +24,14 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+type ctxZapXLogKeyType struct{}
+
+type ctxZapFastXLogKeyType struct{}
+
+var ctxZapXLogKey = ctxZapXLogKeyType{}
+
+var ctxZapFastXLogKey = ctxZapFastXLogKeyType{}
+
 func buildZapLogger(config xlogcore.Config) *zap.Logger {
 
 	if config.Level >= xlogcore.PanicLevel {

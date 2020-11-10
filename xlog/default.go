@@ -62,15 +62,15 @@ func With(kvs ...interface{}) xlogcore.XLog {
 	return dft.With(kvs...)
 }
 
-// Withc adds a variadic number of fields to the context.Context and
-// returns the resulting ctx.
-func Withc(ctx context.Context, kvs ...interface{}) context.Context {
-	return dft.Withc(ctx, kvs...)
+// ToCtx adds the XLog, with a variadic number of fields, to ctx and
+// returns the resulting context.Context.
+func ToCtx(ctx context.Context, kvs ...interface{}) context.Context {
+	return dft.ToCtx(ctx, kvs...)
 }
 
-// Ctx adds a variadic number of fields to the logging context from the ctx.
-func Ctx(ctx context.Context) xlogcore.XLog {
-	return dft.Ctx(ctx)
+// FromCtx gets the XLog from the ctx.
+func FromCtx(ctx context.Context) xlogcore.XLog {
+	return dft.FromCtx(ctx)
 }
 
 // Debug construct and log a Debug message.

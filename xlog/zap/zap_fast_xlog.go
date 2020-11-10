@@ -15,8 +15,9 @@
 package zap
 
 import (
+	"context"
 	"github.com/cupx/cupx/xlog/xlogcore"
-	
+
 	"go.uber.org/zap"
 )
 
@@ -68,7 +69,7 @@ func (log *FastXLogger) WithOptions(opts ...xlogcore.Option) xlogcore.FastXLog {
 // AddCallerSkip increases the number of callers skipped by caller annotation.	
 func (log *FastXLogger) AddCallerSkip(n int) xlogcore.FastXLog {
 	l := log.clone()
-	l.logger = log.logger.WithOptions(zap.AddCaller(), zap.AddCallerSkip(n))
+	l.logger = l.logger.WithOptions(zap.AddCaller(), zap.AddCallerSkip(n))
 	return l
 }
 
@@ -79,8 +80,36 @@ func (log *FastXLogger) With(kvs ...xlogcore.KeyVal) xlogcore.FastXLog {
 		return log
 	}
 	l := log.clone()
-	l.logger = log.logger.With(log.keyValToZapField(kvs...)...)
+	l.logger = l.logger.With(log.keyValToZapField(kvs...)...)
 	return l
+}
+
+// ToCtx adds the FastXLog, with a variadic number of fields, to ctx and
+// returns the resulting context.Context.
+func (log *FastXLogger) ToCtx(ctx context.Context, kvs ...xlogcore.KeyVal) context.Context {
+	if ctx == nil {
+		ctx = context.TODO()
+	}
+
+	l := log.clone()
+	l.logger = l.logger.With(log.keyValToZapField(kvs...)...)
+	return context.WithValue(ctx, ctxZapFastXLogKey, l)
+}
+
+// FromCtx gets the FastXLog from the ctx.
+func (log *FastXLogger) FromCtx(ctx context.Context) xlogcore.FastXLog {
+	if ctx == nil {
+		return log
+	}
+
+	if ctxFl, ok := ctx.Value(ctxZapFastXLogKey).(*FastXLogger); ok {
+		return ctxFl
+	}
+	if ctxL, ok := ctx.Value(ctxZapXLogKey).(*XLogger); ok {
+		return ctxL.Fast()
+	}
+
+	return log
 }
 
 // Debug construct and log a Debug message.
