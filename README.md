@@ -1,6 +1,6 @@
 # CupX
 
-[![GoDev](https://img.shields.io/static/v1?label=godev&message=reference&color=00add8)](https://pkg.go.dev/mod/github.com/cupx/cupx)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/cupx/cupx)](https://pkg.go.dev/github.com/cupx/cupx)
 
 This module
 ([`github.com/cupx/cupx`](https://pkg.go.dev/mod/github.com/cupx/cupx))
