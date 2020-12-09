@@ -12,42 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package xdns
+package xdnsutil
 
-import "testing"
+import "strings"
 
-func Test_trimSubDomain(t *testing.T) {
-	type args struct {
-		name string
-		n    int
+func TrimSubDomain(name string, n int) string {
+	s := strings.Split(name, ".")
+
+	if n >= len(s) {
+		return ""
 	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			name: "t1",
-			args: args{
-				name: "q.w.c.cupx.net",
-				n:    4,
-			},
-			want: "net",
-		},
-		{
-			name: "t2",
-			args: args{
-				name: "q.w.c.cupx.net",
-				n:    5,
-			},
-			want: "",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := trimSubDomain(tt.args.name, tt.args.n); got != tt.want {
-				t.Errorf("GetSubDomain() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	return strings.Join(s[n:], ".")
 }

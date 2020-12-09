@@ -22,12 +22,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cupx/cupx/xacme/testdata"
-	"github.com/cupx/cupx/xdns"
+	"cupx.github.io/xacme/testdata"
+	"cupx.github.io/xdns"
 )
 
 func GetStagingAcct() Client {
-	data := testdata.GetTestData("../../testdata/data.test.yaml")
+	data := testdata.GetTestData("./testdata/data.test.yaml")
 	dns := &xdns.Config{
 		Type: data.Dns.Type,
 		AK:   data.Dns.Ak,

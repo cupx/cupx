@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// xdns package provides an extensible dns library
 package xdns
 
-// // Config configures XDns when creating.
+import "cupx.github.io/xdns/alidns"
+
+// Config configures XDns when creating.
 type Config struct {
 	Type string
 	AK   string
@@ -34,7 +37,7 @@ type XDns interface {
 // NewXDns returns XDns.
 func NewXDns(conf *Config) XDns {
 	if conf.Type == "alidns" {
-		return NewAliDns(conf.AK, conf.SK)
+		return alidns.NewAliDns(conf.AK, conf.SK)
 	}
 	return nil
 }

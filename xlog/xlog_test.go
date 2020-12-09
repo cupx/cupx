@@ -17,7 +17,7 @@ package xlog
 import (
 	"testing"
 
-	"github.com/cupx/cupx/xlog/xlogcore"
+	"cupx.github.io/xlog/xlogcore"
 )
 
 func TestNewFastXLog(t *testing.T) {
@@ -91,8 +91,8 @@ func TestNewXLogDft(t *testing.T) {
 	FromCtx(ctx2).With("k16", "v16").Fast().Info("hi")
 	Fast().FromCtx(ctx2).Info("hi")
 	ctx3 := ToCtx(nil)
-	With("k17","v17").FromCtx(ctx3).With("k18","v18").Info("hi")
-	
+	With("k17", "v17").FromCtx(ctx3).With("k18", "v18").Info("hi")
+
 	//Panic("msg")
 	//Fatal("msg")
 

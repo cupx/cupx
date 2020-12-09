@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package xdns
+// alidns package implements XDns interface.
+package alidns
 
 import (
-	"fmt"
+	"cupx.github.io/xdns/xdnsutil"
 	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
@@ -57,6 +58,9 @@ func (d *AliDns) AddDomainRecord(t string, name string, value string) error {
 	req.Value = value
 	_, err := d.client.AddDomainRecord(req)
 	if err != nil {
+		if strings.Contains(err.Error(), "ErrorCode: DomainRecordDuplicate") {
+			return nil
+		}
 		return err
 	}
 
@@ -79,7 +83,8 @@ func (d *AliDns) DeleteDomainRecord(t string, name string, value string) error {
 		}
 	}
 	if id == "" {
-		return fmt.Errorf("no rr found")
+		// don't return err if rr not found
+		return nil
 	}
 
 	return d.DnsDeleteDomainRecordByID(id)
@@ -111,7 +116,7 @@ func (d *AliDns) AliDnsGetDomainRecordList(name string) (*alidns.DescribeDomainR
 func (d *AliDns) GetRootZone(name string) string {
 
 	for i := 0; ; i++ {
-		subdomain := trimSubDomain(name, i)
+		subdomain := xdnsutil.TrimSubDomain(name, i)
 		if subdomain == "" {
 			return ""
 		}

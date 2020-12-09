@@ -34,7 +34,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cupx/cupx/xdns"
+	"cupx.github.io/xdns"
 	"gopkg.in/square/go-jose.v2"
 )
 
@@ -65,9 +65,9 @@ type Client interface {
 	CreateAccountWithEmail(email string, TOSAgreed bool) (*Account, error)
 	// SetAccount set Account for acme client.
 	SetAccount(acct *Account) (*Account, error)
-	// CreateAccountWithPrivateKey create acme account with private key. 
+	// CreateAccountWithPrivateKey create acme account with private key.
 	CreateAccountWithPrivateKey(acct *Account) (*Account, error)
-	// SignCertWithDNS sign certificate with dns-01 Challenge. 
+	// SignCertWithDNS sign certificate with dns-01 Challenge.
 	SignCertWithDNS(sr *IdlSignReq, opts ...Option) (*CertInfo, error)
 }
 
@@ -228,7 +228,7 @@ func (c *client) SignCertWithDNS(sr *IdlSignReq, opts ...Option) (*CertInfo, err
 		return nil, err
 	}
 
-	// validate identifier with dns. 
+	// validate identifier with dns.
 	err = nc.validateIdentifierWithDNS(oResp.Authorizations, sr.TXTCname)
 	if err != nil {
 		return nil, err
@@ -418,7 +418,6 @@ func (c *client) dns01Challenge(authz string, cname string) error {
 			} else {
 				name = "_acme-challenge." + darResp.Identifier.Value
 			}
-
 			tp, err := GetJWKThumbprintWithBase64url(c.acct.PrivateKey.Public())
 			if err != nil {
 				return err
@@ -432,7 +431,6 @@ func (c *client) dns01Challenge(authz string, cname string) error {
 			}
 			time.Sleep(time.Second * 30)
 			_, _, err = c.acmePost(challenge.URL, "{}", true)
-
 			if err != nil {
 				return err
 			}

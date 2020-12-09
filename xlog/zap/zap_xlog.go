@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cupx/cupx/xlog/xlogcore"
+	"cupx.github.io/xlog/xlogcore"
 
 	"go.uber.org/zap"
 )

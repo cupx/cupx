@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package xdns
+package alidns
 
 import (
 	"log"
 	"testing"
 
-	"github.com/cupx/cupx/xdns/testdata"
+	"cupx.github.io/xdns/alidns/testdata"
 )
 
 func newClient() *AliDns {
