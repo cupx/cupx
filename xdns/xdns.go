@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// xdns package provides an extensible dns library
+// Package xdns provides an extensible dns library
 package xdns
 
 import "cupx.github.io/xdns/alidns"

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package xlog provides an extensible acme library
 package xlog
 
 import (

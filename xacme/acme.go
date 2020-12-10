@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// xacme package implement part of rfc8555.
+// Package xacme implements part of rfc8555.
 // https://tools.ietf.org/html/rfc8555
 package xacme
 
@@ -52,6 +52,7 @@ type CaMeta struct {
 	DirURL      string
 	NewAcctURL  string
 	NewOrderURL string
+	NewNonceURL string
 }
 
 var caAcmeDirMap = map[string]string{
@@ -85,14 +86,63 @@ func WithRootCAKeyID(id string) Option {
 	}
 }
 
+type acmeNonce struct {
+	nonce    string
+	nonceMu  sync.Mutex
+	nonceURL string
+}
+
+func NewAcmeNonce(url string) *acmeNonce {
+	an := &acmeNonce{nonceURL: url, nonceMu: sync.Mutex{}}
+	return an
+}
+func (an *acmeNonce) Nonce() (nonce string, err error) {
+	nonce = an.getCachedNonce()
+	if nonce != "" {
+		return
+	}
+
+	req, err := http.NewRequest(http.MethodHead, an.nonceURL, nil)
+	if err != nil {
+		return
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return
+	}
+
+	nonce = resp.Header.Get("Replay-Nonce")
+
+	return
+}
+
+func (an *acmeNonce) getCachedNonce() string {
+	an.nonceMu.Lock()
+	defer an.nonceMu.Unlock()
+
+	if an.nonce != "" {
+		n := an.nonce
+		an.nonce = ""
+		return n
+	}
+	return ""
+}
+
+func (an *acmeNonce) cacheNonce(nonce string) {
+	an.nonceMu.Lock()
+	defer an.nonceMu.Unlock()
+
+	an.nonce = nonce
+}
+
 type client struct {
 	ca         string
 	acct       *Account
 	httpClient http.Client
-	nonce      string
+	nonce      *acmeNonce
 	dns        *xdns.Config
 	caMeta     *CaMeta
-	postMu     *sync.Mutex
 	opt        option
 }
 
@@ -135,8 +185,9 @@ func NewClient(conf *Config, opts ...Option) Client {
 		caMeta: &CaMeta{
 			NewAcctURL:  idl.NewAccount,
 			NewOrderURL: idl.NewOrder,
+			NewNonceURL: idl.NewNonce,
 		},
-		postMu: new(sync.Mutex),
+		nonce:  NewAcmeNonce(idl.NewNonce),
 		opt: func() option {
 			o := new(option)
 			for _, opt := range opts {
@@ -248,7 +299,7 @@ func (c *client) SignCertWithDNS(sr *IdlSignReq, opts ...Option) (*CertInfo, err
 	}))
 
 	// request certificate.
-	fRespB, _, err := nc.acmePost(oResp.Finalize, fmt.Sprintf("{\"csr\":\"%s\"}", csr), true)
+	fRespB, _, err := nc.acmePost(oResp.Finalize, fmt.Sprintf("{\"csr\":\"%s\"}", csr))
 
 	// download certificate.
 	fResp := &IdlRespFinalize{}
@@ -295,7 +346,8 @@ func (c *client) newAccount() error {
 		Contact:              contact,
 	}
 
-	_, resp, err := c.acmePost(c.caMeta.NewAcctURL, payload, false)
+	c.acct.AcctURL = ""
+	_, resp, err := c.acmePost(c.caMeta.NewAcctURL, payload)
 
 	if err != nil {
 		return err
@@ -308,15 +360,14 @@ func (c *client) newAccount() error {
 
 func (c *client) clone() *client {
 	nc := *c
-	nc.postMu = new(sync.Mutex)
-	nc.nonce = ""
+	nc.nonce = NewAcmeNonce(c.caMeta.NewNonceURL)
 	return &nc
 }
 func (c *client) getCertFromURL(url string, pemPri string) (*CertInfo, error) {
 
 	var certPems [][]byte
 
-	DcRespB, DcResp, err := c.acmePost(url, "", true)
+	DcRespB, DcResp, err := c.acmePost(url, "")
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +377,7 @@ func (c *client) getCertFromURL(url string, pemPri string) (*CertInfo, error) {
 
 	for _, link := range links {
 		if link.Rel == "alternate" {
-			DcRespB, _, err := c.acmePost(link.URL, "", true)
+			DcRespB, _, err := c.acmePost(link.URL, "")
 			if err != nil {
 				continue
 			}
@@ -429,8 +480,8 @@ func (c *client) dns01Challenge(authz string, cname string) error {
 			if err != nil {
 				return err
 			}
-			time.Sleep(time.Second * 30)
-			_, _, err = c.acmePost(challenge.URL, "{}", true)
+			time.Sleep(time.Second * 10)
+			_, _, err = c.acmePost(challenge.URL, "{}")
 			if err != nil {
 				return err
 			}
@@ -497,7 +548,7 @@ func (c *client) getCsrUseSHA256WithRSA(sr *IdlSignReq) (string, *rsa.PrivateKey
 
 func (c *client) newOrder(p *IdlReqNewOrderPayload) (*IdlRespNewOrder, error) {
 
-	resps, _, err := c.acmePost(c.caMeta.NewOrderURL, p, true)
+	resps, _, err := c.acmePost(c.caMeta.NewOrderURL, p)
 	if err != nil {
 		return nil, err
 	}
@@ -519,7 +570,7 @@ func (c *client) newOrder(p *IdlReqNewOrderPayload) (*IdlRespNewOrder, error) {
 
 func (c *client) downloadAuthorizationResources(url string) (*IdlRespDownLoadAuthorizationResources, error) {
 
-	respB, _, err := c.acmePost(url, nil, true)
+	respB, _, err := c.acmePost(url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -535,32 +586,21 @@ func (c *client) downloadAuthorizationResources(url string) (*IdlRespDownLoadAut
 
 }
 
-func (c *client) signPayloadWithES256(url string, p interface{}, hasKid bool) (string, error) {
+func (c *client) signPayloadWithES256(nonce jose.NonceSource, url string, p interface{}) (string, error) {
 
-	s, err := jose.NewSigner(
-		jose.SigningKey{
-			Algorithm: jose.ES256,
-			Key:       c.acct.PrivateKey,
-		},
-		&jose.SignerOptions{
-			EmbedJWK: func() bool {
-				if hasKid {
-					return false
-				}
-				return true
-			}(),
-			ExtraHeaders: func() map[jose.HeaderKey]interface{} {
+	sk := jose.SigningKey{
+		Algorithm: jose.ES256,
+		Key:       jose.JSONWebKey{Key: c.acct.PrivateKey, KeyID: c.acct.AcctURL},
+	}
 
-				h := make(map[jose.HeaderKey]interface{}, 0)
-				h["nonce"] = c.nonce
-				h["url"] = url
-				if hasKid {
-					h["kid"] = c.acct.AcctURL
-				}
-				return h
-			}(),
-		},
-	)
+	so := &jose.SignerOptions{NonceSource: nonce}
+	so.WithHeader("url", url)
+
+	if c.acct.AcctURL == "" {
+		so.EmbedJWK = true
+	}
+
+	s, err := jose.NewSigner(sk, so)
 
 	if err != nil {
 		return "", err
@@ -581,7 +621,7 @@ func (c *client) signPayloadWithES256(url string, p interface{}, hasKid bool) (s
 			jp = []byte("")
 		}
 	}
-
+	
 	jws, err := s.Sign(jp)
 
 	if err != nil {
@@ -592,59 +632,47 @@ func (c *client) signPayloadWithES256(url string, p interface{}, hasKid bool) (s
 
 }
 
-func (c *client) acmePost(url string, p interface{}, hasKid bool) (respb []byte, resp *http.Response, err error) {
-	c.postMu.Lock()
-	defer c.postMu.Unlock()
-
-	SignAndPostF := func(url string, p interface{}, hasKid bool) (respb []byte, resp *http.Response, err error) {
-		sg, _ := c.signPayloadWithES256(url, p, hasKid)
-
-		req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer([]byte(sg)))
-
+func (c *client) acmePost(url string, p interface{}) ([]byte, *http.Response, error) {
+	count := 3
+	for count != 0 {
+		jws, _ := c.signPayloadWithES256(c.nonce, url, p)
+		req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer([]byte(jws)))
 		if err != nil {
-			return
+			return nil, nil, err
 		}
 		req.Header.Add("Content-Type", "application/jose+json")
-
-		resp, err = c.httpClient.Do(req)
-
+		resp, err := c.httpClient.Do(req)
 		if err != nil {
-			return
-		}
-
-		respb, err = ioutil.ReadAll(resp.Body)
-
-		if err != nil {
-			return
+			return nil, nil, err
 		}
 
 		if nonce := resp.Header.Get("Replay-Nonce"); nonce != "" {
-			c.nonce = nonce
+			c.nonce.cacheNonce(nonce)
 		}
-		return
-	}
 
-	respb, resp, err = SignAndPostF(url, p, hasKid)
-
-	if resp != nil && resp.StatusCode == http.StatusBadRequest {
-
-		respe := &IdlRespErr{}
-
-		_ = json.Unmarshal(respb, respe)
-
-		if respe.Type == "urn:ietf:params:acme:error:badNonce" {
-			respb, resp, err = SignAndPostF(url, p, hasKid)
+		respb, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, nil, err
 		}
+
+		if resp.StatusCode == http.StatusBadRequest {
+			respe := &IdlRespErr{}
+			_ = json.Unmarshal(respb, respe)
+			if respe.Type == "urn:ietf:params:acme:error:badNonce" {
+				count--
+				continue
+			}
+		}
+
+		if resp.StatusCode >= 400 {
+			respe := &IdlRespErr{}
+			_ = json.Unmarshal(respb, respe)
+			err = errors.New("cupx/xacme.client.acmePost: " + respe.Type + " " + respe.Detail)
+			return nil, nil, err
+		}
+
+		return respb, resp, nil
 	}
 
-	if resp != nil && resp.StatusCode >= 400 {
-		respe := &IdlRespErr{}
-
-		_ = json.Unmarshal(respb, respe)
-
-		err = errors.New(respe.Type + " " + respe.Detail)
-	}
-
-	return
-
+	return nil, nil, errors.New("cupx/xacme.client.acmePost: acmePost failed")
 }

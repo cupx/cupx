@@ -26,7 +26,11 @@ import (
 	"cupx.github.io/xdns"
 )
 
+func InitLog() {
+	log.SetFlags(log.LstdFlags| log.Lshortfile)
+}
 func GetStagingAcct() Client {
+	InitLog()
 	data := testdata.GetTestData("./testdata/data.test.yaml")
 	dns := &xdns.Config{
 		Type: data.Dns.Type,
@@ -49,6 +53,7 @@ func GetStagingAcct() Client {
 	return c
 }
 func GetAcct() Client {
+	InitLog()
 	data := testdata.GetTestData("./testdata/data.test.yaml")
 	dns := &xdns.Config{
 		Type: data.Dns.Type,
@@ -71,7 +76,8 @@ func GetAcct() Client {
 	log.Println(c.SetAccount(acct))
 	return c
 }
-func TestClient_CreatAccountWithEmail(t *testing.T) {
+func TestClient_CreatAccountWithEmailStaging(t *testing.T) {
+	InitLog()
 	dns := &xdns.Config{
 		Type: "alidns",
 		AK:   "",
@@ -99,8 +105,9 @@ func TestClient_CreatAccountWithEmail(t *testing.T) {
 
 	log.Println(acctr)
 
-	acct, err := c.CreateAccountWithEmail("me@archlake.net", true)
+	acct, err := c.CreateAccountWithEmail("acme@issue-tls-cert.test.xdns.cupx.net", true)
 	if err != nil {
+		log.Println(acct, err)
 		return
 	}
 	acct.PrivateKey = nil
@@ -113,7 +120,8 @@ func TestClient_CreatAccountWithEmail(t *testing.T) {
 
 }
 
-func TestClient_SetAccount(t *testing.T) {
+func TestClient_SetAccountStaging(t *testing.T) {
+	InitLog()
 	dns := &xdns.Config{
 		Type: "alidns",
 		AK:   "",
@@ -147,7 +155,7 @@ func TestClient_SetAccount(t *testing.T) {
 
 }
 
-func TestClient_CreatAccountWithPrivateKey(t *testing.T) {
+func TestClient_CreatAccountWithPrivateKeyStaging(t *testing.T) {
 	dns := &xdns.Config{
 		Type: "alidns",
 		AK:   "",
@@ -172,7 +180,7 @@ func TestClient_CreatAccountWithPrivateKey(t *testing.T) {
 	acctr := &Account{}
 
 	json.Unmarshal(acctrb, acctr)
-
+	acctr.AcctURL = ""
 	log.Println(acctr, err, c)
 
 	acct, err := c.CreateAccountWithPrivateKey(acctr)
@@ -189,14 +197,14 @@ func TestClient_SignCertWithDNSStaging(t *testing.T) {
 		Identifiers: []IdlIdentifier{
 			{
 				Type:  "dns",
-				Value: "*.testcert1.test.xdns.cupx.net",
+				Value: "*.testcert2.test.xdns.cupx.net",
 			},
 			{
 				Type:  "dns",
-				Value: "testcert1.test.xdns.cupx.net",
+				Value: "testcert2.test.xdns.cupx.net",
 			},
 		},
-		TXTCname: "testcert1.cert.issue-tls-cert.test.xdns.cupx.net",
+		TXTCname: "testcert2.cert.issue-tls-cert.test.xdns.cupx.net",
 	}
 
 	cert, err := c.SignCertWithDNS(idl, WithRootCAKeyID(CaLetsencryptStagingRootCaKeyIdFakeLeRootX1))

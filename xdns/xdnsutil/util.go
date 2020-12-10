@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package xdnsutil provides a utility library for XDns.
 package xdnsutil
 
 import "strings"

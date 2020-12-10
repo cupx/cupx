@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// alidns package implements XDns interface.
+// Package alidns implements XDns interface.
 package alidns
 
 import (
