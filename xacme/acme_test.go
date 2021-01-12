@@ -22,8 +22,8 @@ import (
 	"os"
 	"testing"
 
-	"cupx.github.io/xacme/testdata"
-	"cupx.github.io/xdns"
+	"cupx.github.io/pkg/xacme/testdata"
+	"cupx.github.io/pkg/xdns"
 )
 
 func InitLog() {

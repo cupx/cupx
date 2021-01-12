@@ -15,7 +15,7 @@
 // Package xdns provides an extensible dns library
 package xdns
 
-import "cupx.github.io/xdns/alidns"
+import "cupx.github.io/pkg/xdns/alidns"
 
 // Config configures XDns when creating.
 type Config struct {

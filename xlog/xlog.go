@@ -18,8 +18,8 @@ package xlog
 import (
 	"fmt"
 	
-	"cupx.github.io/xlog/xlogcore"
-	"cupx.github.io/xlog/zap"
+	"cupx.github.io/pkg/xlog/xlogcore"
+	"cupx.github.io/pkg/xlog/zap"
 )
 
 // NewFastXLog returns FastXLog.

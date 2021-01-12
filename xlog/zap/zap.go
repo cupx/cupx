@@ -18,7 +18,7 @@ package zap
 import (
 	"os"
 
-	"cupx.github.io/xlog/xlogcore"
+	"cupx.github.io/pkg/xlog/xlogcore"
 
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"

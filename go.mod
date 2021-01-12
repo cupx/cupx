@@ -1,4 +1,4 @@
-module cupx.github.io
+module cupx.github.io/pkg
 
 go 1.14
 

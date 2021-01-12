@@ -34,7 +34,7 @@ import (
 	"sync"
 	"time"
 
-	"cupx.github.io/xdns"
+	"cupx.github.io/pkg/xdns"
 	"gopkg.in/square/go-jose.v2"
 )
 

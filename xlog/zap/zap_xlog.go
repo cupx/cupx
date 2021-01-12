@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	"cupx.github.io/xlog/xlogcore"
+	"cupx.github.io/pkg/xlog/xlogcore"
 
 	"go.uber.org/zap"
 )
@@ -184,7 +184,7 @@ func (log *XLogger) genMsg(args ...interface{}) string {
 	msg := ""
 	for i, arg := range args {
 		if i == 0 {
-			msg += fmt.Sprintf("%v", arg)
+			msg += fmt.Sprintf("%+v", arg)
 		} else {
 			msg += fmt.Sprintf(" %+v", arg)
 		}

@@ -18,7 +18,7 @@ import (
 	"log"
 	"testing"
 
-	"cupx.github.io/xdns/alidns/testdata"
+	"cupx.github.io/pkg/xdns/alidns/testdata"
 )
 
 func newClient() *AliDns {

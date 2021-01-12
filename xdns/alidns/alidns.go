@@ -16,7 +16,7 @@
 package alidns
 
 import (
-	"cupx.github.io/xdns/xdnsutil"
+	"cupx.github.io/pkg/xdns/xdnsutil"
 	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"

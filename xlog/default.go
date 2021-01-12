@@ -17,7 +17,7 @@ package xlog
 import (
 	"context"
 	
-	"cupx.github.io/xlog/xlogcore"
+	"cupx.github.io/pkg/xlog/xlogcore"
 )
 
 var dft xlogcore.XLog

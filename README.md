@@ -1,28 +1,28 @@
 # CupX
 
-[![PkgGoDev](https://pkg.go.dev/badge/cupx.github.io)](https://pkg.go.dev/cupx.github.io)
+[![PkgGoDev](https://pkg.go.dev/badge/cupx.github.io/pkg)](https://pkg.go.dev/cupx.github.io/pkg)
 
-This module [`cupx.github.io`](https://pkg.go.dev/mod/cupx.github.io) contains a Cup of eXtensible libraries.
+This module [`cupx.github.io/pkg`](https://pkg.go.dev/cupx.github.io/pkg) contains a Cup of eXtensible libraries.
 
 ## Installation
 
 ```
-go get -u cupx.github.io
+go get -u cupx.github.io/pkg
 ```
 
 ## Package index
 
 Summary of the packages provided by this module:
 
-- [xlog](https://pkg.go.dev/cupx.github.io/xlog): Package `xlog` provides an extensible log library.
-- [xdns](https://pkg.go.dev/cupx.github.io/xdns): Package `xdns` provides an extensible dns library.
-- [xacme](https://pkg.go.dev/cupx.github.io/xacme): Package `xacme` provides an extensible acme library.
+- [xlog](https://pkg.go.dev/cupx.github.io/pkg/xlog): Package `xlog` provides an extensible log library.
+- [xdns](https://pkg.go.dev/cupx.github.io/pkg/xdns): Package `xdns` provides an extensible dns library.
+- [xacme](https://pkg.go.dev/cupx.github.io/pkg/xacme): Package `xacme` provides an extensible acme library.
 
 ## FAQ
 
-### Why not use [github.com/cupx/cupx](https://github.com/cupx/cupx) as module path?
+### Why not use [github.com/cupx/cupx-pkg](github.com/cupx/cupx-pkg) as module path?
 
-The path [cupx.github.io](https://cupx.github.io) is shorter than [github.com/cupx/cupx](https://github.com/cupx/cupx).
+The path [cupx.github.io/pkg](https://cupx.github.io/pkg) is shorter than [github.com/cupx/cupx-pkg](https://github.com/cupx/cupx-pkg).
 
 ### Why not use [pkg.cupx.net](https://pkg.cupx.net) as Module path?
 

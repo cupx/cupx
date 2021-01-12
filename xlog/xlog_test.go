@@ -17,7 +17,7 @@ package xlog
 import (
 	"testing"
 
-	"cupx.github.io/xlog/xlogcore"
+	"cupx.github.io/pkg/xlog/xlogcore"
 )
 
 func TestNewFastXLog(t *testing.T) {
